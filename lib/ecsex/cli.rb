@@ -27,6 +27,38 @@ module Ecsex
       puts_json @core.images(parameters)
     end
 
+    desc 'deregister_image', 'deregister_image'
+    option :name, aliases: '-n', type: :string, required: false, desc: 'name'
+    option :older_than, type: :numeric, required: false, default: 2, desc: 'name'
+    def deregister_image
+      parameters = {
+        image_name: options['name'],
+        image_owner_alias: 'self',
+        usage: 'none',
+        status: 'Available',
+        page_size: 100
+      }
+
+      results = Hash.new{|h,k| h[k] = []}
+      images = @core.images(parameters).sort_by{ |a| Time.parse(a["CreationTime"])}.reverse
+      images.each do |image|
+        tag = JSON.parse(image.Description, { symbolize_names: true })
+        results[tag[:in]] << image
+      end
+      results.each do |k , one_images|
+        one_images.shift(options['older_than'])
+        one_images.each do |image|
+          @core.delete_image({ image_id: image.ImageId })
+          image.DiskDeviceMappings.DiskDeviceMapping.each do |disk|
+            parameters = {
+              snapshot_id: disk.SnapshotId,
+            }
+            @core.delete_snapshot(parameters)
+          end
+        end
+      end
+    end
+
     desc 'instances', 'instances'
     option :name, aliases: '-n', type: :string, desc: 'name'
     def instances
@@ -171,18 +203,6 @@ module Ecsex
         @core.associate_eip_address({instance_id: created_instance['InstanceId']}, eip_address.nil? ? nil : eip_address.AllocationId)
       end
       @core.start_instance({instance_id: created_instance['InstanceId']})
-    end
-
-    desc 'delete_image', 'delete_image'
-    option :name, aliases: '-n', type: :string, required: true, desc: 'name'
-    def delete_image
-      @core.images(image_name: options['name']).each do |image|
-        parameters = {
-          image_id: image.ImageId,
-        }
-        next if image.Usage == 'instance'
-        @core.delete_image(parameters)
-      end
     end
 
     desc 'delete_snapshot', 'delete_snapshot'

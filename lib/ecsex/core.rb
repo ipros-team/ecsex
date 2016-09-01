@@ -107,6 +107,7 @@ module Ecsex
     end
 
     def delete_image(parameters)
+      @logger.info(%Q{delete image #{parameters}})
       options = parameters
       options[:region_id] = @region
       @ecs.delete_image(options)
