@@ -1,4 +1,5 @@
 require "thor"
+require 'json_color'
 
 module Ecsex
   class CLI < Thor
@@ -256,7 +257,7 @@ module Ecsex
     private
 
     def puts_json(data)
-      puts JSON.pretty_generate(data)
+      puts JsonColor.colorize(JSON.pretty_generate(data))
     end
   end
 end

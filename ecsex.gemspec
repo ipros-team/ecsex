@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'thor'
   gem.add_dependency 'aliyun-api'
   gem.add_dependency 'hashie'
+  gem.add_dependency 'json_color'
 
   gem.add_development_dependency 'bundler'
   gem.add_development_dependency 'pry', '~> 0.10.1'
