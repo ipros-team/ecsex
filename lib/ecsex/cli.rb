@@ -20,10 +20,12 @@ module Ecsex
 
     desc 'images', 'images'
     option :name, aliases: '-n', type: :string, required: false, desc: 'name'
+    option :size, type: :numeric, desc: 'size'
     def images
       parameters = {
         image_name: options['name']
       }
+      parameters[:page_size] = options['size'] if options['size']
       puts_json @core.images(parameters)
     end
 
@@ -61,19 +63,23 @@ module Ecsex
 
     desc 'instances', 'instances'
     option :name, aliases: '-n', type: :string, desc: 'name'
+    option :size, type: :numeric, desc: 'size'
     def instances
       parameters = {
         instance_name: options['name']
       }
+      parameters[:page_size] = options['size'] if options['size']
       puts_json @core.instances(parameters)
     end
 
     desc 'snapshots', 'snapshots'
     option :name, aliases: '-n', type: :string, required: false, desc: 'name'
+    option :size, type: :numeric, desc: 'size'
     def snapshots
       parameters = {
         snapshot_name: options['name']
       }
+      parameters[:page_size] = options['size'] if options['size']
       puts_json @core.snapshots(parameters)
     end
 
