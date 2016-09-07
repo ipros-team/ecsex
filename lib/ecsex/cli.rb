@@ -24,9 +24,9 @@ module Ecsex
     option :size, type: :numeric, desc: 'size'
     def images
       parameters = {
-        image_name: options['name']
+        ImageName: options[:name]
       }
-      parameters[:page_size] = options['size'] if options['size']
+      parameters[:PageSize] = options[:size] if options[:size]
       puts_json @core.images(parameters)
     end
 
@@ -35,11 +35,11 @@ module Ecsex
     option :older_than, type: :numeric, required: false, default: 2, desc: 'name'
     def deregister_image
       parameters = {
-        image_name: options['name'],
-        image_owner_alias: 'self',
-        usage: 'none',
-        status: 'Available',
-        page_size: 100
+        ImageName: options[:name],
+        ImageOwnerAlias: 'self',
+        Usage: 'none',
+        Status: 'Available',
+        PageSize: 100
       }
 
       results = Hash.new{|h,k| h[k] = []}
@@ -49,12 +49,12 @@ module Ecsex
         results[tag[:in]] << image
       end
       results.each do |k , one_images|
-        one_images.shift(options['older_than'])
+        one_images.shift(options[:older_than])
         one_images.each do |image|
-          @core.delete_image({ image_id: image.ImageId })
+          @core.delete_image({ ImageID: image.ImageId })
           image.DiskDeviceMappings.DiskDeviceMapping.each do |disk|
             parameters = {
-              snapshot_id: disk.SnapshotId,
+              SnapshotId: disk.SnapshotId,
             }
             @core.delete_snapshot(parameters)
           end
@@ -67,9 +67,9 @@ module Ecsex
     option :size, type: :numeric, desc: 'size'
     def instances
       parameters = {
-        instance_name: options['name']
+        InstanceName: options[:name]
       }
-      parameters[:page_size] = options['size'] if options['size']
+      parameters[:PageSize] = options[:size] if options[:size]
       puts_json @core.instances(parameters)
     end
 
@@ -78,9 +78,9 @@ module Ecsex
     option :size, type: :numeric, desc: 'size'
     def snapshots
       parameters = {
-        snapshot_name: options['name']
+        SnapshotName: options[:name]
       }
-      parameters[:page_size] = options['size'] if options['size']
+      parameters[:PageSize] = options[:size] if options[:size]
       puts_json @core.snapshots(parameters)
     end
 
@@ -88,7 +88,7 @@ module Ecsex
     option :eip_address, aliases: '-e', type: :string, desc: 'eip_address'
     def eip_addresses
       parameters = {}
-      parameters[:eip_address] = options['eip_address'] if options['eip_address']
+      parameters[:EipAddress] = options[:eip_address] if options[:eip_address]
       puts_json @core.eip_addresses(parameters)
     end
 
@@ -96,7 +96,7 @@ module Ecsex
     option :name, aliases: '-n', type: :string, desc: 'name'
     def disks
       parameters = {}
-      parameters[:disk_name] = options['name'] if options['name']
+      parameters[:DiskName] = options[:name] if options[:name]
       puts_json @core.disks(parameters)
     end
 
@@ -104,17 +104,17 @@ module Ecsex
     option :eip_address, aliases: '-e', type: :string, desc: 'eip_address'
     def release_eip_addresses
       parameters = {}
-      parameters[:eip_address] = options['eip_address'] if options['eip_address']
+      parameters[:EipAddress] = options[:eip_address] if options[:eip_address]
       @core.eip_addresses(parameters).each do |eip_addresse|
-        @core.release_eip_address({ allocation_id: eip_addresse['AllocationId']})
+        @core.release_eip_address({ AllocationID: eip_addresse['AllocationId']})
       end
     end
 
     desc 'unassociate_eip_address', 'unassociate_eip_address'
     option :name, aliases: '-n', type: :string, required: true, desc: 'name'
     def unassociate_eip_address
-      @core.instances(instance_name: options['name']).each do |instance|
-        @core.unassociate_eip_address({ instance_id: instance.InstanceId, allocation_id: instance.EipAddress.AllocationId })
+      @core.instances(InstanceName: options[:name]).each do |instance|
+        @core.unassociate_eip_address({ InstanceID: instance.InstanceId, AllocationID: instance.EipAddress.AllocationId })
       end
     end
 
@@ -122,21 +122,21 @@ module Ecsex
     option :name, aliases: '-n', type: :string, required: true, desc: 'name'
     option :eip_address, aliases: '-e', type: :string, required: true, desc: 'eip_address'
     def associate_eip_address
-      eip_address = @core.eip_addresses({ eip_address: options['eip_address'] }).first
-      instance = @core.instances(instance_name: options['name']).first
-      @core.associate_eip_address({ instance_id: instance.InstanceId }, eip_address.AllocationId)
+      eip_address = @core.eip_addresses({ eip_address: options[:eip_address] }).first
+      instance = @core.instances(InstanceName: options[:name]).first
+      @core.associate_eip_address({ InstanceID: instance.InstanceId }, eip_address.AllocationId)
     end
 
     desc 'copy_image', 'copy_image'
     option :name, aliases: '-n', type: :string, required: true, desc: 'name'
     option :destination_region_id, type: :string, required: true, desc: 'destination_region_id'
     def copy_image
-      @core.images(image_name: options['name']).each do |image|
+      @core.images(ImageName: options[:name]).each do |image|
         parameters = {
-          image_id: image.ImageId,
-          destination_image_name: image.ImageName,
-          destination_description: image.Description,
-          destination_region_id: options['destination_region_id']
+          ImageID: image.ImageId,
+          DestinationImageName: image.ImageName,
+          DestinationDescription: image.Description,
+          DestinationRegionID: options[:destination_region_id]
         }
         @core.copy_image(parameters)
       end
@@ -145,7 +145,7 @@ module Ecsex
     desc 'create_image', 'create_image'
     option :name, aliases: '-n', type: :string, required: true, desc: 'name'
     def create_image
-      @core.instances(instance_name: options['name']).each do |instance|
+      @core.instances(InstanceName: options[:name]).each do |instance|
         @core.create_image_with_instance(instance)
       end
     end
@@ -156,30 +156,30 @@ module Ecsex
     option :renew, aliases: '-r', type: :boolean, default: false, desc: 'renew'
     option :auto_eip_address, type: :boolean, default: false, desc: 'auto_eip_address'
     def copy
-      @core.instances(instance_name: options['name']).each do |instance|
+      @core.instances(InstanceName: options[:name]).each do |instance|
         image = @core.create_image_with_instance(instance)
-        if options['renew']
+        if options[:renew]
           @core.delete_instance_with_id(instance.InstanceId)
         end
         parameters = {
-          image_id: image.ImageId,
-          zone_id: instance.ZoneId,
-          instance_name: instance.InstanceName,
-          instance_type: instance.InstanceType,
-          host_name: instance.HostName,
-          v_switch_id: instance.VpcAttributes.VSwitchId,
-          'system_disk.category': 'cloud_efficiency',
-          security_group_id: instance.SecurityGroupIds.SecurityGroupId.first,
-          description: instance.Description,
-          private_ip_address: instance.VpcAttributes.PrivateIpAddress.IpAddress.first
+          'SystemDisk.Category': 'cloud_efficiency',
+          ImageID: image.ImageId,
+          ZoneID: instance.ZoneId,
+          InstanceName: instance.InstanceName,
+          InstanceType: instance.InstanceType,
+          HostName: instance.HostName,
+          VSwitchID: instance.VpcAttributes.VSwitchId,
+          SecurityGroupID: instance.SecurityGroupIds.SecurityGroupId.first,
+          Description: instance.Description,
+          PrivateIpAddress: instance.VpcAttributes.PrivateIpAddress.IpAddress.first
         }
         parameters.merge!(@core.get_data_disk_with_image(image))
-        parameters.merge!(options['params'].each_with_object({}){|(k,v),memo| memo[k.to_s.to_sym]=v})
+        parameters.merge!(options[:params].each_with_object({}){|(k,v),memo| memo[k.to_s.to_sym]=v})
         created_instance = @core.create_instance(parameters)
-        if options['auto_eip_address']
-          @core.associate_eip_address({instance_id: created_instance['InstanceId']}, instance.EipAddress.AllocationId)
+        if options[:auto_eip_address]
+          @core.associate_eip_address({InstanceID: created_instance['InstanceId']}, instance.EipAddress.AllocationId)
         end
-        @core.start_instance({instance_id: created_instance['InstanceId']})
+        @core.start_instance({InstanceID: created_instance['InstanceId']})
       end
     end
 
@@ -188,36 +188,36 @@ module Ecsex
     option :params, aliases: '-p', type: :hash, default: {}, desc: 'params'
     option :auto_eip_address, type: :boolean, default: false, desc: 'auto_eip_address'
     def run_instance
-      image = @core.images({ image_name: options['name'] + '.*'}).max_by{ |image| image.CreationTime }
+      image = @core.images({ ImageName: options[:name] + '.*'}).max_by{ |image| image.CreationTime }
       attributes = Hashie::Mash.new(JSON.parse(image.Description))
       parameters = {
-        image_id: image.ImageId,
-        zone_id: attributes.zid,
-        instance_name: attributes.in,
-        instance_type: attributes.it,
-        host_name: attributes.in,
-        v_switch_id: attributes.vsid,
-        'system_disk.category': 'cloud_efficiency',
-        security_group_id: attributes.sgid,
-        description: attributes.d,
-        private_ip_address: attributes.pia
+        'SystemDisk.Category': 'cloud_efficiency',
+        ImageID: image.ImageId,
+        ZoneID: attributes.zid,
+        InstanceName: attributes.in,
+        InstanceType: attributes.it,
+        HostName: attributes.in,
+        VSwitchID: attributes.vsid,
+        SecurityGroupID: attributes.sgid,
+        Description: attributes.d,
+        PrivateIpAddress: attributes.pia
       }
       parameters.merge!(@core.get_data_disk_with_image(image))
-      parameters.merge!(@core.symbolize_keys(options['params']))
+      parameters.merge!(@core.symbolize_keys(options[:params]))
       created_instance = @core.create_instance(parameters)
-      eip_address = @core.eip_addresses({ eip_address: attributes.eia }).first
-      if options['auto_eip_address'] || eip_address
-        @core.associate_eip_address({instance_id: created_instance['InstanceId']}, eip_address.nil? ? nil : eip_address.AllocationId)
+      eip_address = @core.eip_addresses({ EipAddress: attributes.eia }).first
+      if options[:auto_eip_address] || eip_address
+        @core.associate_eip_address({ InstanceID: created_instance['InstanceId']}, eip_address.nil? ? nil : eip_address.AllocationId)
       end
-      @core.start_instance({instance_id: created_instance['InstanceId']})
+      @core.start_instance({ InstanceID: created_instance['InstanceId']})
     end
 
     desc 'delete_snapshot', 'delete_snapshot'
     option :name, aliases: '-n', type: :string, required: false, desc: 'name'
     def delete_snapshot
-      @core.snapshots(snapshot_name: options['name'], usage: 'none').each do |snapshot|
+      @core.snapshots(SnapshotName: options[:name], Usage: 'none').each do |snapshot|
         parameters = {
-          snapshot_id: snapshot.SnapshotId,
+          SnapshotID: snapshot.SnapshotId,
         }
         @core.delete_snapshot(parameters)
       end
@@ -226,9 +226,9 @@ module Ecsex
     desc 'delete_disk', 'delete_disk'
     option :name, aliases: '-n', type: :string, required: false, desc: 'name'
     def delete_disk
-      @core.disks(disk_name: options['name']).each do |disk|
+      @core.disks(DiskName: options[:name]).each do |disk|
         parameters = {
-          disk_id: disk.DiskId,
+          DiskID: disk.DiskId,
         }
         @core.delete_disk(parameters)
       end
@@ -237,14 +237,14 @@ module Ecsex
     desc 'delete_instance', 'delete_instance'
     option :name, aliases: '-n', type: :string, required: true, desc: 'name'
     def delete_instance
-      @core.delete_instance_with_name(options['name'])
+      @core.delete_instance_with_name(options[:name])
     end
 
     desc 'stop_instance', 'stop_instance'
     option :name, aliases: '-n', type: :string, required: true, desc: 'name'
     def stop_instance
-      @core.instances(instance_name: options['name']).each do |instance|
-        parameters = { instance_id: instance.InstanceId }
+      @core.instances(InstanceName: options[:name]).each do |instance|
+        parameters = { InstanceId: instance.InstanceId }
         puts @core.stop_instance(parameters)
       end
     end

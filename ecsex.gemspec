@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
   gem.add_dependency 'thor'
-  gem.add_dependency 'aliyun-api'
+  gem.add_dependency 'aliyun'
   gem.add_dependency 'hashie'
   gem.add_dependency 'json_color'
 
