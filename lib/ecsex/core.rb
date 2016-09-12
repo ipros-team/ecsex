@@ -44,9 +44,10 @@ module Ecsex
 
     def instances_with_id(instance_id)
       options = {}
-      options[:InstanceIds] = [instance_id]
+      options[:InstanceIds] = [instance_id].to_json
       options[:RegionID] = @region
-      Hashie::Mash.new(@ecs.DescribeInstances(options)).Instances.Instance
+      instances = @ecs.DescribeInstances(options)
+      Hashie::Mash.new(instances).Instances.Instance
     end
 
     def snapshots(parameters)
@@ -89,7 +90,7 @@ module Ecsex
       end
       compressed = description.to_json
       parameters = {
-        InstanceID: instance.InstanceId,
+        InstanceId: instance.InstanceId,
         ImageName: image_name,
         Description: description.to_json
       }
@@ -147,8 +148,8 @@ module Ecsex
     end
 
     def stop_and_delete_instance(instance_id:)
-      wait_for_stop(InstanceID: instance_id)
-      options = { InstanceID: instance_id }
+      wait_for_stop(InstanceId: instance_id)
+      options = { InstanceId: instance_id }
       @ecs.DeleteInstance(options)
     end
 
@@ -158,15 +159,15 @@ module Ecsex
     end
 
     def delete_instance_with_name(name)
-      instances(instance_name: name).each do |instance|
-        parameters = { InstanceID: instance.InstanceId }
+      instances(InstanceName: name).each do |instance|
+        parameters = { InstanceId: instance.InstanceId }
         stop_instance(parameters)
         delete_instance(parameters)
       end
     end
 
     def delete_instance_with_id(instance_id)
-      parameters = { InstanceID: instance_id }
+      parameters = { InstanceId: instance_id }
       stop_instance(parameters)
       delete_instance(parameters)
     end
@@ -211,13 +212,13 @@ module Ecsex
     end
 
     def wait_for_stop(parameters)
-      results = instances_with_id(parameters[:InstanceID])
+      results = instances_with_id(parameters[:InstanceId])
       return if results.first.Status == 'Stopped'
       @ecs.StopInstance(parameters)
       loop do
-        results = instances_with_id(parameters[:InstanceID])
+        results = instances_with_id(parameters[:InstanceId])
         if results.first.Status == 'Stopped'
-          @logger.info(%Q{stopped #{parameters[:InstanceID]}})
+          @logger.info(%Q{stopped #{parameters[:InstanceId]}})
           return
         end
         sleep 10
