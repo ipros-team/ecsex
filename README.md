@@ -32,7 +32,22 @@ export ALIYUN_REGION=cn-beijing
 
 ### copy instance
 
-    $ ecsex copy -n 'web01' -p instance_name:web02 private_ip_address:172.17.0.12 host_name:web02
+    $ ecsex copy -n 'web01' -p InstanceName:web02 PrivateIpAddress:172.17.0.12 HostName:web02
+
+#### copy parameter keys
+* ImageID
+* ZoneID
+* InstanceName
+* InstanceType
+* HostName
+* VSwitchID
+* SecurityGroupID
+* Description
+* PrivateIpAddress
+
+### deregister image
+
+    $ ecsex deregister_image -n 'web01' --older_than 1
 
 ## Contributing
 
