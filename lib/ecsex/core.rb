@@ -3,6 +3,7 @@ require "logger"
 require "pp"
 require "json"
 require 'aliyun'
+require 'openssl'
 
 module Ecsex
   class Core
